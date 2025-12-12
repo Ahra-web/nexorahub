@@ -50,6 +50,8 @@ export default function SignUpPage() {
       return;
     }
 
+    console.log("SignInError:", signInError); // 🔍 여기에 주목
+
     // 3️⃣ 로그인 성공 → 홈 이동
     window.location.href = "/";
   };

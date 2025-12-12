@@ -24,12 +24,14 @@ export default function NewPostPage() {
     setLoading(false);
 
     if (error) {
-      alert("Error creating post");
+      alert("Error creating post: " + error.message);
       console.error(error);
       return;
     }
 
-    router.push("/"); // 작성 완료 후 메인으로 이동
+    // 작성 완료 후 메인으로 이동 (캐시 무시하고 새로고침)
+    router.push("/");
+    router.refresh(); // 서버 컴포넌트 강제 새로고침
   };
 
   return (

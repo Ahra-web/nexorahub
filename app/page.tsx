@@ -19,7 +19,8 @@ export default async function HomePage() {
       <div className="max-w-3xl mx-auto flex flex-col gap-4">
         <h1 className="text-2xl font-semibold text-blue-300 mb-4">Post list</h1>
         {posts?.map((post) => (
-          <div
+          <Link
+            href={`/posts/${post.id}`}
             key={post.id}
             className="border border-white/10 p-4 rounded bg-gray-900 hover:bg-gray-800 transition"
           >
@@ -28,7 +29,7 @@ export default async function HomePage() {
             <span className="text-xs text-white/50 mt-1 block">
               {new Date(post.created_at).toLocaleString()}
             </span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

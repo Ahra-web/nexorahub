@@ -23,21 +23,40 @@ export default function SignUpPage() {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+
+    // 1️⃣ 회원가입
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { username },
+        emailRedirectTo: window.location.origin, // 이메일 확인 후 돌아올 URL
       },
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    // 2️⃣ 자동 로그인 시도 (이메일 확인 필요 없는 경우)
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
     setLoading(false);
 
-    if (error) {
-      setError(error.message);
-    } else {
-      alert("Sign up successful! Please check your email to confirm.");
+    if (signInError) {
+      // 이메일 확인 필요 모드라면 여기서 에러 발생 가능
+      alert("Sign up successful! Please check your email to confirm login.");
+      return;
     }
+
+    // 3️⃣ 로그인 성공 → 홈 페이지로 이동
+    alert("Sign up and login successful!");
+    window.location.href = "/";
   };
 
   return (

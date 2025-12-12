@@ -11,14 +11,42 @@ export default function Header() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+      try {
+        // 먼저 세션 확인
+        const { data: sessionData } = await supabase.auth.getSession();
+        
+        // 세션이 있을 때만 사용자 정보 가져오기
+        if (sessionData.session) {
+          const { data, error } = await supabase.auth.getUser();
+          if (error) {
+            // 403 에러 등은 무시 (세션이 만료되었거나 유효하지 않은 경우)
+            console.warn("Failed to fetch user:", error.message);
+            setUser(null);
+            return;
+          }
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        // 에러 발생 시 사용자 상태를 null로 설정
+        console.warn("Error fetching user:", error);
+        setUser(null);
+      }
     };
+    
     fetchUser();
 
     // ✅ 로그인 상태 실시간 반영
-    const { data: listener } = supabase.auth.onAuthStateChange(() => fetchUser());
-    return () => listener.subscription.unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        fetchUser();
+      } else {
+        setUser(null);
+      }
+    });
+    
+    return () => subscription.unsubscribe();
   }, []);
 
     const handleLogout = async () => {

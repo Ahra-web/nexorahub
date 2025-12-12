@@ -25,10 +25,13 @@ export default function SignUpPage() {
     setLoading(true);
 
     // 1️⃣ 회원가입
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username } }, // 프로필 데이터 저장
+      options: { 
+        data: { username },
+        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined
+      },
     });
 
     if (signUpError) {
@@ -37,8 +40,24 @@ export default function SignUpPage() {
       return;
     }
 
-    // 2️⃣ 바로 로그인
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    // 2️⃣ 이메일 확인이 필요한 경우 처리
+    if (signUpData.user && !signUpData.session) {
+      // 이메일 확인이 필요한 경우
+      setError("Please check your email to confirm your account before logging in.");
+      setLoading(false);
+      return;
+    }
+
+    // 3️⃣ 세션이 있는 경우 (이메일 확인이 필요 없는 경우) 바로 로그인
+    if (signUpData.session) {
+      // 세션이 이미 있으면 성공적으로 로그인된 상태
+      setLoading(false);
+      window.location.href = "/";
+      return;
+    }
+
+    // 4️⃣ 세션이 없는 경우 로그인 시도
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -46,14 +65,16 @@ export default function SignUpPage() {
     setLoading(false);
 
     if (signInError) {
-      setError(signInError.message);
+      setError(signInError.message || "Please check your email to confirm your account.");
       return;
     }
 
-    console.log("SignInError:", signInError); // 🔍 여기에 주목
-
-    // 3️⃣ 로그인 성공 → 홈 이동
-    window.location.href = "/";
+    // 5️⃣ 로그인 성공 → 세션 확인 후 홈 이동
+    if (signInData.session) {
+      // 세션을 명시적으로 확인하고 페이지 이동
+      await supabase.auth.getSession();
+      window.location.href = "/";
+    }
   };
 
   return (

@@ -23,12 +23,29 @@ export default function LoginPage() {
       password,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setError(error.message);
+      return;
+    }
+
+    // 세션 확인 및 저장
+    if (data.session) {
+      // 세션을 명시적으로 확인
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (sessionData.session) {
+        // 세션이 제대로 설정되었는지 확인 후 페이지 이동
+        setLoading(false);
+        router.push("/");
+        router.refresh(); // 페이지 새로고침으로 세션 반영
+      } else {
+        setLoading(false);
+        setError("Session could not be established. Please try again.");
+      }
     } else {
-      router.push("/"); // ✅ 로그인 성공 시 메인 페이지 이동
+      setLoading(false);
+      setError("Login failed. Please check your credentials.");
     }
   };
 

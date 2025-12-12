@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { supabaseServer } from "@/lib/supabaseServer";
+import supabaseServer from "@/lib/supabaseServer"; // default import
 
 export default async function PastPage() {
   const { data: postsData } = await supabaseServer

@@ -1,4 +1,4 @@
-import { supabaseServer } from "@/lib/supabaseServer";
+import supabaseServer from "@/lib/supabaseServer"; // default import
 import CommentForm from "@/components/CommentForm";
 import CommentList from "@/components/CommentList";
 

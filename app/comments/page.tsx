@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { supabaseServer } from "@/lib/supabaseServer";
+// app/comments/page.tsx
+import supabaseServer from "@/lib/supabaseServer"; // default import
+
 
 export default async function CommentsPage() {
   // 1️⃣ 모든 게시글 + 관련 댓글 조회

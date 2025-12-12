@@ -1,14 +1,19 @@
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
 
 export default async function HomePage() {
+  const supabase = createServerComponentClient({ cookies });
+
   const { data: posts, error } = await supabase
     .from("posts")
     .select("*")
     .order("created_at", { ascending: false });
 
+  console.log(posts, error); // 서버에서 확인
+
   return (
-    <div className="min-h-screen  text-white pt-24 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen text-white pt-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto flex flex-col gap-4">
         <h1 className="text-2xl font-semibold text-blue-300 mb-4">Post list</h1>
         {posts?.map((post) => (
